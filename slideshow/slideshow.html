@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Slideshow</title>
+		<style>
+			main {
+				width: 100%;
+				max-width: 1200px;
+				margin: 0 auto;
+			}
+
+			body {
+				margin: 0;
+				padding: 0;
+			}
+		</style>
+		<script>
+			document.write(
+				`<link rel="stylesheet" href="slideshow.css?v=${Date.now()}">`,
+			);
+
+			document.write(`<script src="slideshow.js?v=${Date.now()}"></` + `script>`);
+		</script>
+	</head>
+	<body>
+		<main>
+			<div class="jempe_slideshow_container" id="jempe_slideshow1">
+				<div class="jempe_slideshow">
+					<div class="jempe_slideshow_slider">
+						<div class="jempe_slideshow_item">
+							1
+						</div>
+						<div class="jempe_slideshow_item">
+							2
+						</div>
+						<div class="jempe_slideshow_item">
+							3
+						</div>
+						<div class="jempe_slideshow_item">
+							4
+						</div>
+						<div class="jempe_slideshow_item">
+							5
+						</div>
+						<div class="jempe_slideshow_item">
+							6
+						</div>
+						<div class="jempe_slideshow_item">
+							7
+						</div>
+						<div class="jempe_slideshow_item">
+							8
+						</div>
+					</div>
+				</div>
+			</div>
+		</main>
+		<script>
+			const slideshow = new JempeSlideshow('jempe_slideshow1');
+		</script>
+	</body>
+</html>
