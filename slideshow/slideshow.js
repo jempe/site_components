@@ -13,68 +13,100 @@ class JempeSlideshow {
 
 		this.options = { ...defaultOptions, ...options };
 
+		this.styleTag = document.createElement("style");
+		document.head.append(this.styleTag);
+		this.styleTag.innerHTML = `
+        #${this.element.id} .jempe_slideshow_item {
+            width : ${this.options.slideWidth};
+        }
+        #${this.element.id} .jempe_slideshow_slider {
+            gap : ${this.options.slideGap};
+            transition: transform 0.3s ease-in-out;
+        }
+        #${this.element.id} .jempe_slideshow {
+            overflow-x: hidden;
+            overflow-y: hidden;
+        }
+        `;
+
 		this.init();
 	}
 
 	init() {
-		this.slidesContainer = this.element.querySelector(".jempe_slideshow");
-		this.slides = this.element.querySelectorAll(".jempe_slideshow_item");
-		this.currentIndex = 0;
-		this.isProgrammaticScroll = false;
+		this.slider = this.element.querySelector(".jempe_slideshow_slider");
+		this.originalSlides = Array.from(
+			this.element.querySelectorAll(".jempe_slideshow_item"),
+		);
+		this.originalSlideCount = this.originalSlides.length;
 
-		this.slidesContainer.addEventListener("scrollend", () => {
-			if (this.isProgrammaticScroll) {
-				return;
-			}
-			this.setIndexAfterScroll();
+		// Clone slides for the end
+		this.originalSlides.forEach((slide) => {
+			this.slider.appendChild(slide.cloneNode(true));
 		});
 
+		// Clone slides for the beginning
+		this.originalSlides.slice().reverse().forEach((slide) => {
+			this.slider.prepend(slide.cloneNode(true));
+		});
+
+		this.slides = this.element.querySelectorAll(".jempe_slideshow_item");
+		this.currentIndex = this.originalSlideCount;
+
+		// Set initial position without animation
+		this.slider.style.transition = "none";
 		this.update();
+
+		// Force a reflow to apply the transform instantly, then re-enable transitions
+		this.slider.offsetHeight;
+		this.slider.style.transition = "transform 0.3s ease-in-out";
+
+		this.slider.addEventListener(
+			"transitionend",
+			() => this.handleTransitionEnd(),
+		);
 	}
 
 	next() {
-		if (this.currentIndex < this.slides.length - 1) {
-			this.currentIndex++;
-			this.update();
-		}
+		this.currentIndex++;
+		this.update();
 	}
 
 	prev() {
-		if (this.currentIndex > 0) {
-			this.currentIndex--;
+		this.currentIndex--;
+		this.update();
+	}
+
+	goTo(index) {
+		if (index >= 0 && index < this.originalSlideCount) {
+			this.currentIndex = index + this.originalSlideCount;
 			this.update();
 		}
 	}
 
-	goTo(index) {
-		if (index >= 0 && index < this.slides.length) {
-			this.currentIndex = index;
+	handleTransitionEnd() {
+		// Check if we are at the end clones
+		if (this.currentIndex >= this.originalSlideCount * 2) {
+			this.currentIndex = this.originalSlideCount;
+			this.slider.style.transition = "none";
 			this.update();
+			this.slider.offsetHeight; // Force reflow
+			this.slider.style.transition = "transform 0.3s ease-in-out";
+		}
+
+		// Check if we are at the beginning clones
+		if (this.currentIndex < this.originalSlideCount) {
+			this.currentIndex = this.originalSlideCount * 2 - 1;
+			this.slider.style.transition = "none";
+			this.update();
+			this.slider.offsetHeight; // Force reflow
+			this.slider.style.transition = "transform 0.3s ease-in-out";
 		}
 	}
 
 	update() {
 		const slideWidth = parseInt(this.options.slideWidth, 10);
 		const slideGap = parseInt(this.options.slideGap, 10);
-		const scrollAmount = this.currentIndex * (slideWidth + slideGap);
-
-		this.isProgrammaticScroll = true;
-		this.slidesContainer.scrollTo({
-			left: scrollAmount,
-			behavior: "smooth",
-		});
-
-		setTimeout(() => {
-			this.isProgrammaticScroll = false;
-		}, 300); // A bit longer than the scroll debounce
-	}
-
-	setIndexAfterScroll() {
-		const scrollLeft = this.slidesContainer.scrollLeft;
-		const slideWidth = parseInt(this.options.slideWidth, 10);
-		const slideGap = parseInt(this.options.slideGap, 10);
-		this.currentIndex = Math.round(scrollLeft / (slideWidth + slideGap));
-
-		this.update();
+		const offset = -this.currentIndex * (slideWidth + slideGap);
+		this.slider.style.transform = `translateX(${offset}px)`;
 	}
 }
