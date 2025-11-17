@@ -33,6 +33,7 @@ class JempeSlideshow {
 	}
 
 	init() {
+		this.slidesContainer = this.element.querySelector('.jempe_slideshow');
 		this.slider = this.element.querySelector(".jempe_slideshow_slider");
 		this.originalSlides = Array.from(
 			this.element.querySelectorAll(".jempe_slideshow_item"),
@@ -60,10 +61,18 @@ class JempeSlideshow {
 		this.slider.offsetHeight;
 		this.slider.style.transition = "transform 0.3s ease-in-out";
 
+		this.isDragging = false;
+		this.startX = 0;
+		this.startTranslate = 0;
+
 		this.slider.addEventListener(
 			"transitionend",
 			() => this.handleTransitionEnd(),
 		);
+
+		this.slidesContainer.addEventListener('pointerdown', (e) => this.handlePointerDown(e));
+		window.addEventListener('pointermove', (e) => this.handlePointerMove(e));
+		window.addEventListener('pointerup', () => this.handlePointerUp());
 	}
 
 	next() {
@@ -108,5 +117,44 @@ class JempeSlideshow {
 		const slideGap = parseInt(this.options.slideGap, 10);
 		const offset = -this.currentIndex * (slideWidth + slideGap);
 		this.slider.style.transform = `translateX(${offset}px)`;
+	}
+
+	getCurrentTranslateX() {
+		const style = window.getComputedStyle(this.slider);
+		const matrix = new DOMMatrix(style.transform);
+		return matrix.m41;
+	}
+
+	handlePointerDown(e) {
+		e.preventDefault();
+		this.isDragging = true;
+		this.startX = e.pageX;
+		this.startTranslate = this.getCurrentTranslateX();
+		this.slider.style.transition = 'none';
+		this.slider.style.cursor = 'grabbing';
+	}
+
+	handlePointerMove(e) {
+		if (!this.isDragging) return;
+		const currentX = e.pageX;
+		const diff = currentX - this.startX;
+		const newTranslate = this.startTranslate + diff;
+		this.slider.style.transform = `translateX(${newTranslate}px)`;
+	}
+
+	handlePointerUp() {
+		if (!this.isDragging) return;
+		this.isDragging = false;
+
+		const slideWidth = parseInt(this.options.slideWidth, 10);
+		const slideGap = parseInt(this.options.slideGap, 10);
+		const itemWidth = slideWidth + slideGap;
+
+		const currentTranslate = this.getCurrentTranslateX();
+		this.currentIndex = Math.round(-currentTranslate / itemWidth);
+
+		this.slider.style.transition = 'transform 0.3s ease-in-out';
+		this.slider.style.cursor = 'grab';
+		this.update();
 	}
 }
