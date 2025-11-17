@@ -33,7 +33,7 @@ class JempeSlideshow {
 	}
 
 	init() {
-		this.slidesContainer = this.element.querySelector('.jempe_slideshow');
+		this.slidesContainer = this.element.querySelector(".jempe_slideshow");
 		this.slider = this.element.querySelector(".jempe_slideshow_slider");
 		this.originalSlides = Array.from(
 			this.element.querySelectorAll(".jempe_slideshow_item"),
@@ -70,9 +70,12 @@ class JempeSlideshow {
 			() => this.handleTransitionEnd(),
 		);
 
-		this.slidesContainer.addEventListener('pointerdown', (e) => this.handlePointerDown(e));
-		window.addEventListener('pointermove', (e) => this.handlePointerMove(e));
-		window.addEventListener('pointerup', () => this.handlePointerUp());
+		this.slidesContainer.addEventListener(
+			"pointerdown",
+			(e) => this.handlePointerDown(e),
+		);
+		window.addEventListener("pointermove", (e) => this.handlePointerMove(e));
+		window.addEventListener("pointerup", () => this.handlePointerUp());
 	}
 
 	next() {
@@ -130,8 +133,8 @@ class JempeSlideshow {
 		this.isDragging = true;
 		this.startX = e.pageX;
 		this.startTranslate = this.getCurrentTranslateX();
-		this.slider.style.transition = 'none';
-		this.slider.style.cursor = 'grabbing';
+		this.slider.style.transition = "none";
+		this.slider.style.cursor = "grabbing";
 	}
 
 	handlePointerMove(e) {
@@ -153,8 +156,8 @@ class JempeSlideshow {
 		const currentTranslate = this.getCurrentTranslateX();
 		this.currentIndex = Math.round(-currentTranslate / itemWidth);
 
-		this.slider.style.transition = 'transform 0.3s ease-in-out';
-		this.slider.style.cursor = 'grab';
+		this.slider.style.transition = "transform 0.3s ease-in-out";
+		this.slider.style.cursor = "grab";
 		this.update();
 	}
 }

@@ -34,12 +34,3 @@
 	width: fit-content;
 }
 
-.jempe_slideshow_item {
-	display: flex;
-	width: 200px;
-	height: 100%;
-	background: #eee;
-	align-items: center;
-	justify-content: center;
-	border-radius: 20px;
-}
